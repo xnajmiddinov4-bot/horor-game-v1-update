@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>THE ABANDONED HOUSE</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="g"></div><div id="vg"></div><div id="cross"></div>
+<div id="hud">🔑 <b id="kn">0</b> / 3<small id="ob">Maqsad: 3 ta kalitni toping</small></div>
+<div id="pr"></div><div id="ms"></div><div id="fl"></div>
+<div id="jb"><div id="jk"></div></div>
+<div class="tc" id="bp"><button class="tb" id="tp">II</button></div>
+<div class="tc" id="bs"><button class="tb" id="te">E</button><button class="tb" id="tf">F</button><button class="tb" id="tr">»</button></div>
+
+<div class="ov" id="menu">
+<h1>THE ABANDONED HOUSE</h1>
+<p>Siz tashlandiq eski uyda uyg‘ondingiz. Hamma yoq qorong‘i. Uyning ichida uchta kalit yashiringan — ularni toping, asosiy eshikni oching va bu joydan tirik chiqing. Lekin uyda siz yolg‘iz emassiz…</p>
+<button class="btn" id="go">YAKKA O‘YIN</button><button class="btn" id="mpb">MULTIPLAYER</button>
+<div class="kb" id="st">O‘yin yuklanmoqda…</div>
+<div class="kb">WASD — yurish · Sichqoncha — qarash · Shift — yugurish<br>F — fonar · E — olish / eshik · J — kundalik · Esc — pauza<br>Telefonda: chap tomon — harakat, o‘ng tomon — qarash</div>
+</div>
+<div class="ov h" id="mp"><h2>MULTIPLAYER</h2>
+<div id="mpm" class="col"><button class="btn" id="mpcr">XONA YARATISH</button><button class="btn" id="mpjo">XONAGA QO‘SHILISH</button></div>
+<div id="mph" class="col hid"><p>Xona kodi:</p><div id="mpc" class="code">······</div><button class="btn" id="mpcp">KODNI NUSXALASH</button><button class="btn" id="mpst" disabled>BOSHLASH</button></div>
+<div id="mpg" class="col hid"><p>Host bergan 6 belgili kodni kiriting:</p><input id="mpi" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="ABC234"><button class="btn" id="mpgo">ULANISH</button></div>
+<div class="kb" id="mpl"></div><div class="kb" id="mps"></div><button class="btn" id="mpbk">ORQAGA</button></div>
+<div class="ov h" id="err"><h2>XATOLIK</h2><p id="errt"></p><button class="btn" onclick="location.reload()">QAYTA YUKLASH</button></div>
+<div class="ov h" id="pause"><h2>PAUZA</h2><button class="btn" id="res">DAVOM ETISH</button><button class="btn" onclick="location.reload()">BOSH MENYU</button></div>
+<div class="ov h" id="dead"><h2 style="color:#b01c1c">SIZNI USHLASHDI</h2><p id="deadt">Maxluq sizni qorong‘ida topdi… Uy yana bir qurbonga ega bo‘ldi.</p><button class="btn" id="deadb" onclick="location.reload()">QAYTA URINISH</button></div>
+<div class="ov h" id="win"><h2>SIZ QUTULDINGIZ</h2><p id="wint">Eshik ochildi va siz sovuq tungi havoga chiqdingiz. Orqangizda uy jimgina qoldi… lekin u sizni unutmaydi.</p><button class="btn" id="winb" onclick="location.reload()">QAYTA BOSHLASH</button></div>
+
+<script>
+(function(){
+  var errBox=document.getElementById('err'),errTxt=document.getElementById('errt'),go=document.getElementById('go'),st=document.getElementById('st');
+  window.showGameError=function(t){errTxt.textContent=t;errBox.classList.remove('h')};
+  window.addEventListener('error',function(e){
+    if(window.__fatalShown||(e.error&&e.error.handled))return;
+    if(e.filename&&/^(chrome|moz|safari|edge)-extension:/.test(e.filename))return;
+    if(/ResizeObserver/.test(e.message||''))return;
+    var f=(e.filename||'').split('/').pop().split('?')[0];
+    if(e.message==='Script error.'){window.showGameError('O‘yin skriptida xatolik yuz berdi. Sahifani file:// emas, VS Code Live Server orqali oching, so‘ng F12 → Console oynasidagi xabarni tekshiring.');return}
+    window.showGameError('O‘yinda xatolik yuz berdi: '+(e.message||'noma’lum xato')+(f?' ('+f+(e.lineno?':'+e.lineno:'')+')':''));
+  });
+  // O'yin tayyor bo'lguncha START bosilsa — tayyor bo'lgach avtomatik boshlanadi
+  go.addEventListener('click',function(){
+    if(!window.__gameReady){window.__pendingStart=true;st.textContent='O‘yin yuklanmoqda… tayyor bo‘lgach boshlanadi.'}
+  });
+  function startGameScript(){
+    var game=document.createElement('script');
+    game.src='game.js';
+    game.onerror=function(){window.showGameError('game.js yuklanmadi. ZIP ni to‘liq extract qiling va papkani Live Server orqali oching (index.html va game.js bir papkada bo‘lishi kerak).')};
+    game.onload=function(){['story.js','puzzles.js','multiplayer.js','netsync.js'].forEach(function(f){var m=document.createElement('script');m.async=false;m.src=f;m.onerror=function(){if(f=='multiplayer.js'||f=='netsync.js'){var b=document.getElementById('mpb');if(b)b.style.display='none'}};document.body.appendChild(m)})};document.body.appendChild(game);
+  }
+  var sources=['lib/three.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
+    'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js',
+    'https://unpkg.com/three@0.128.0/build/three.min.js'];
+  function loadThree(i){
+    if(i>=sources.length){
+      st.textContent='';
+      window.showGameError('Three.js kutubxonasi yuklanmadi. Internet aloqasini tekshiring, yoki three.min.js (r128) faylini lib/ papkasiga joylang va sahifani qayta oching.');
+      return;
+    }
+    var s=document.createElement('script'),settled=false,timer;
+    function next(){if(settled)return;settled=true;clearTimeout(timer);s.onload=s.onerror=null;loadThree(i+1)}
+    s.onload=function(){
+      if(settled)return;
+      if(window.THREE&&THREE.WebGLRenderer){settled=true;clearTimeout(timer);startGameScript()}else next();
+    };
+    s.onerror=next;
+    timer=setTimeout(next,i===0?3000:10000);
+    s.src=sources[i];
+    document.head.appendChild(s);
+  }
+  loadThree(0);
+})();
+</script>
+</body>
+</html>
